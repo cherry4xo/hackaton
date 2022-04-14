@@ -106,6 +106,55 @@ def add_new_job_2(message: telebot.types.Message):
     bot.register_next_step_handler(new_msg, add_new_job_3)
 
 
+def add_new_task_4(message: telebot.types.Message):
+    new_task = temp_tasks[str(message.chat.id)]
+
+    if message.text.isdigit():
+        new_task.payment = int(message.text)
+    else:
+        new_msg = bot.send_message(message.chat.id,
+                                   "Кажется это не число, пожауйста попробуйте еще раз:")
+        bot.register_next_step_handler(new_msg, add_new_task_4)
+        return
+
+    new_task.headhunter_id = get_user_by_tg_id(session, message.chat.id).id
+
+    session.add(new_task)
+    session.commit()
+
+    new_msg = bot.send_message(
+        message.chat.id, "Ваше задание было опубликовано", reply_markup=menu.main_headhunter_menu())
+
+
+def add_new_task_3(message: telebot.types.Message):
+    skills = list(map(str.strip, message.text.split(',')))
+    skills = list(map(str.lower, skills))
+
+    skills = json.dumps(skills)
+
+    temp_tasks[str(message.chat.id)].skills = skills
+    new_msg = bot.send_message(
+        message.chat.id, "Теперь необходио указать оплату. Просто напишите число без пробелов. Например: 45000 ")
+    bot.register_next_step_handler(new_msg, add_new_task_4)
+
+
+def add_new_task_2(message: telebot.types.Message):
+    description = message.text
+    temp_tasks[str(message.chat.id)].description = description
+    new_msg = bot.send_message(
+        message.chat.id, "Принял, чтобы найти подходящего фрилансера напишите неоходимые для вакансии навыки через запяую. Например: python, английский язык, word, excel")
+    bot.register_next_step_handler(new_msg, add_new_task_3)
+
+
+def add_new_task_1(message: telebot.types.Message):
+    title = message.text
+    temp_tasks[str(message.chat.id)] = Task()
+    temp_tasks[str(message.chat.id)].title = title
+    new_msg = bot.send_message(
+        message.chat.id, "Хорошо, теперь пришлите описание задания")
+    bot.register_next_step_handler(new_msg, add_new_task_2)
+
+
 def add_new_job_1(message: telebot.types.Message):
     title = message.text
     temp_jobs[str(message.chat.id)] = Job()
@@ -190,13 +239,18 @@ def callback_inline(call: telebot.types.CallbackQuery):
         job_id = int(call.data.split('_')[1])
         job = session.query(Job).filter(Job.id == job_id).first()
         user = get_user_by_tg_id(session, call.from_user.id)
-        
+
         add_job_reply(session,  job,  user)
 
     elif call.data == "add_job":
         new_msg = bot.edit_message_text(
             "Напишите проффесию", call.from_user.id, call.message.id)
         bot.register_next_step_handler(new_msg, add_new_job_1)
+
+    elif call.data == "add_task":
+        new_msg = bot.edit_message_text(
+            "Напишите название задания", call.from_user.id, call.message.id)
+        bot.register_next_step_handler(new_msg, add_new_task_1)
 
     elif call.data == "my_jobs":
         text = "Ваши вакансии:\n"
@@ -218,6 +272,12 @@ def callback_inline(call: telebot.types.CallbackQuery):
         new_msg = bot.edit_message_text(
             "Выбери пункт меню:", call.from_user.id, call.message.id, reply_markup=menu.main_seeker_menu())
 
+    elif call.data == "my_jobs":
+        jobs = list(session.query(Job).filter(
+            Job.headhunter_id == call.from_user.id).all())
+
+        new_msg = bot.edit_message_text(
+            "Выберите вакансию:", call.from_user.id, call.message.id, reply_markup=menu.my_jobs(jobs))
 
     elif "seacrch_job" in call.data:
         seeker = get_user_by_tg_id(session, call.from_user.id)
@@ -229,12 +289,12 @@ def callback_inline(call: telebot.types.CallbackQuery):
                 "Нет подходящих вакансий( ", call.from_user.id, call.message.id, reply_markup=menu.main_seeker_menu())
         else:
             text = f"Как тебе вакансия? \n"
-            text += f"{job.title}\n\nОписание:\n"
+            text += f"{job.title}\n\Зарплата:\n"
+            text += f"{job.wage}р в мес\n\nОписание:\n"
             text += f"{job.description[:250]}\nНавыки:\n"
             text += " ,".join(json.loads(job.skills))
             new_msg = bot.edit_message_text(
                 text, call.from_user.id, call.message.id, reply_markup=menu.watch_job(job.id))
-
 
     elif "seacrch_task" in call.data:
         seeker = get_user_by_tg_id(session, call.from_user.id)
@@ -242,17 +302,17 @@ def callback_inline(call: telebot.types.CallbackQuery):
         task = get_relative_task(session, seeker.tg_user_id, skills)
 
         if task is None:
-                new_msg = bot.edit_message_text(
-                    "Нет подходящих вакансий( ", call.from_user.id, call.message.id, reply_markup=menu.main_seeker_menu())
+            new_msg = bot.edit_message_text(
+                "Нет подходящих заданий( ", call.from_user.id, call.message.id, reply_markup=menu.main_seeker_menu())
         else:
             text = f"Как тебе задание? \n"
-            text += f"{job.title}\n\nОписание:\n"
+            text += f"{job.title}\n\Стоимость:\n"
+            text += f"{job.payment}р\n\nОписание:\n"
             text += f"{job.description[:250]}\nНавыки:\n"
             text += " ,".join(json.loads(job.skills))
             new_msg = bot.edit_message_text(
                 text, call.from_user.id, call.message.id, reply_markup=menu.watch_job(job.id))
 
+
 if __name__ == '__main__':
-    # bot.enable_save_next_step_handlers(delay=2)
-    # bot.load_next_step_handlers()
     bot.infinity_polling()

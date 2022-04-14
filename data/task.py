@@ -14,7 +14,6 @@ class Task(SqlAlchemyBase, SerializerMixin):
     title = sqlalchemy.Column(sqlalchemy.Text, nullable=False)
     description = sqlalchemy.Column(sqlalchemy.Text, nullable=False)
     payment = sqlalchemy.Column(sqlalchemy.Integer, nullable=False)
-    overdue_date = sqlalchemy.Column(sqlalchemy.Date, nullable=False) 
     tags = sqlalchemy.Column(sqlalchemy.JSON)
 
     headhunter_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey('headhunters.id'))
