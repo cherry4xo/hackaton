@@ -12,7 +12,7 @@ class Seeker(SqlAlchemyBase, SerializerMixin):
 
     id = sqlalchemy.Column(sqlalchemy.Integer, unique=True,
                            primary_key=True, autoincrement=True)
-    tg_user_id = sqlalchemy.Column(sqlalchemy.Integer, unique=False)
+    tg_user_id = sqlalchemy.Column(sqlalchemy.Integer, unique=True)
     full_name = sqlalchemy.Column(sqlalchemy.String)
     skills = sqlalchemy.Column(sqlalchemy.Text)
     age = sqlalchemy.Column(sqlalchemy.Integer)

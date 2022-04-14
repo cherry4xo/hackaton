@@ -10,7 +10,7 @@ class HeadHunter(SqlAlchemyBase, SerializerMixin):
     __tablename__ = 'headhunters'
 
     id = sqlalchemy.Column(sqlalchemy.Integer, unique=True, primary_key=True, autoincrement=True)
-    tg_user_id = sqlalchemy.Column(sqlalchemy.Integer, unique=False)
+    tg_user_id = sqlalchemy.Column(sqlalchemy.Integer, unique=True)
     name = sqlalchemy.Column(sqlalchemy.String)
     field = sqlalchemy.Column(sqlalchemy.String)
 

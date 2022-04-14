@@ -40,3 +40,14 @@ def choose_role():
         "Соискатель", callback_data="chooserole_seeker"))
 
     return keyboard
+
+
+def watch_job(job_id):
+    keyboard = InlineKeyboardMarkup()
+    keyboard.add(InlineKeyboardButton("⏩", callback_data=f"seacrch_job"))
+    keyboard.add(InlineKeyboardButton(
+        "✅ Откликнуться", callback_data=f"makereply_{job_id}"))
+    keyboard.add(InlineKeyboardButton(
+        "🟥 В главное меню", callback_data="main_menu_seeker"))
+
+    return keyboard

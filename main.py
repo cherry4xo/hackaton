@@ -180,6 +180,10 @@ def callback_inline(call: telebot.types.CallbackQuery):
                 "Пришлите пожалуйста название компании", call.from_user.id, call.message.id)
             bot.register_next_step_handler(new_msg, register_new_headhunter_1)
 
+    elif call.data.startswith("makereply_"):
+        job_id = int(call.data.split('_')[1])
+        job = session.query(Job).filter(Job.id == job_id).first()
+
     elif call.data == "add_job":
         new_msg = bot.edit_message_text(
             "Напишите проффесию", call.from_user.id, call.message.id)
@@ -195,7 +199,23 @@ def callback_inline(call: telebot.types.CallbackQuery):
             text += job.title + "\n"
 
         new_msg = bot.edit_message_text(
-            text, call.from_user.id, call.message.id)
+            text, call.from_user.id, call.message.id, reply_markup=menu.main_headhunter_menu())
+
+    elif call.data == "main_menu_seeker":
+        new_msg = bot.edit_message_text(
+            "Выбери пункт меню:", call.from_user.id, call.message.id, reply_markup=menu.main_seeker_menu())
+
+    elif call.data == "seacrch_job":
+        job = get_relative_job()
+        if job is None:
+            new_msg = bot.edit_message_text(
+                "Нет подходящих вакансий( ", call.from_user.id, call.message.id, reply_markup=menu.main_seeker_menu())
+        else:
+            text = f"Как тебе вакансия? \n"
+            text += f"{job.title}\n"
+            text += f"{job.description[:250]}\n"
+            new_msg = bot.edit_message_text(
+                text, call.from_user.id, call.message.id, reply_markup=menu.watch_job(job.id))
 
 
 if __name__ == '__main__':
