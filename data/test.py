@@ -1,4 +1,3 @@
-
 from hashlib import new
 import sqlalchemy
 from sqlalchemy.orm import relationship
