@@ -279,6 +279,13 @@ def callback_inline(call: telebot.types.CallbackQuery):
         new_msg = bot.edit_message_text(
             "Выберите вакансию:", call.from_user.id, call.message.id, reply_markup=menu.my_jobs(jobs))
 
+    elif call.data == "my_tasks":
+        tasks = list(session.query(Task).filter(
+            Task.headhunter_id == call.from_user.id).all())
+
+        new_msg = bot.edit_message_text(
+            "Выберите задание:", call.from_user.id, call.message.id, reply_markup=menu.my_tasks(tasks))
+
     elif "seacrch_job" in call.data:
         seeker = get_user_by_tg_id(session, call.from_user.id)
         skills = json.loads(seeker.skills)
