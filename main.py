@@ -235,12 +235,30 @@ def callback_inline(call: telebot.types.CallbackQuery):
                 "Пришлите пожалуйста название компании", call.from_user.id, call.message.id)
             bot.register_next_step_handler(new_msg, register_new_headhunter_1)
 
+    elif call.data.startswith("choosejob_"):
+        job_id = int(call.data.split('_')[1])
+        job = session.query(Job).filter(Job.id == job_id).first()
+        user = get_user_by_tg_id(session, call.from_user.id)
+
+        text = ""
+
+        for repl in list(job.replies):
+            us = get_user_by_tg_id(session, repl.seeker_id)
+            text += f"Отклик от {us.full_name}\n"
+
+        new_msg = bot.edit_message_text(
+            text, call.from_user.id, call.message.id, reply_markup=menu.main_headhunter_menu())
+
     elif call.data.startswith("makereply_"):
         job_id = int(call.data.split('_')[1])
         job = session.query(Job).filter(Job.id == job_id).first()
         user = get_user_by_tg_id(session, call.from_user.id)
 
         add_job_reply(session,  job,  user)
+
+        hh = session.query(HeadHunter).filter(
+            HeadHunter.id == job.heahhunter_id)
+        bot.send_message(hh.tg_user_id, f"Новый отклик на вашу вакансию. Посмотрите в меню 'Вакансии'")
 
     elif call.data == "add_job":
         new_msg = bot.edit_message_text(

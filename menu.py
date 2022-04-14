@@ -6,7 +6,8 @@ def my_jobs(jobs: list):
     keyboard = InlineKeyboardMarkup()
 
     for job in jobs:
-        keyboard.add(InlineKeyboardButton(job.title, callback_data=f"choosejob_{job.id}"))
+        keyboard.add(InlineKeyboardButton(
+            job.title, callback_data=f"choosejob_{job.id}"))
 
     return keyboard
 
@@ -19,6 +20,7 @@ def my_tasks(tasks: list):
             task.title, callback_data=f"choosetask_{task.id}"))
 
     return keyboard
+
 
 def main_headhunter_menu():
     keyboard = InlineKeyboardMarkup()
@@ -63,10 +65,11 @@ def choose_role():
 
 def watch_job(job_id):
     keyboard = InlineKeyboardMarkup()
-    keyboard.add(InlineKeyboardButton("⏩", callback_data=f"seacrch_job"))
     keyboard.add(InlineKeyboardButton(
-        "✅ Откликнуться", callback_data=f"makereply_{job_id}"))
+        "▶️ далее", callback_data=f"seacrch_job"))
     keyboard.add(InlineKeyboardButton(
-        "🟥 В главное меню", callback_data="main_menu_seeker"))
+        "🆗 откликнуться", callback_data=f"makereply_{job_id}"))
+    keyboard.add(InlineKeyboardButton(
+        "⏹ в главное меню", callback_data="main_menu_seeker"))
 
     return keyboard
