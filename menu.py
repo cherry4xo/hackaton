@@ -1,4 +1,5 @@
 from telebot.types import InlineKeyboardButton, InlineKeyboardMarkup
+import random
 
 
 def main_headhunter_menu():
@@ -21,9 +22,9 @@ def main_seeker_menu():
     keyboard = InlineKeyboardMarkup()
 
     keyboard.add(InlineKeyboardButton(
-        "Искать вакансии", callback_data="seacrch_job"))
+        "Искать вакансии", callback_data=f"seacrch_job_{random.randint(1, 100)}"))
     keyboard.add(InlineKeyboardButton(
-        "Искать задания", callback_data="seacrch_task"))
+        "Искать задания", callback_data=f"seacrch_task_{random.randint(1, 100)}"))
     keyboard.add(InlineKeyboardButton(
         "Мои отклики", callback_data="my_callbacks"))
     # keyboard.add(InlineKeyboardButton(

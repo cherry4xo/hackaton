@@ -49,6 +49,9 @@ def register_new_seeker_3(message: telebot.types.Message):
 
 def register_new_seeker_2(message: telebot.types.Message):
     skills = list(map(str.strip, message.text.split(',')))
+    skills = list(map(str.lower, skills))
+
+    skills = json.dumps(skills)
     temp_seekers[str(message.chat.id)].skills = skills
 
     new_msg = bot.send_message(message.chat.id,
@@ -86,6 +89,8 @@ def add_new_job_4(message: telebot.types.Message):
 
 def add_new_job_3(message: telebot.types.Message):
     skills = list(map(str.strip, message.text.split(',')))
+    skills = list(map(str.lower, skills))
+
     skills = json.dumps(skills)
     temp_jobs[str(message.chat.id)].skills = skills
     new_msg = bot.send_message(
@@ -164,7 +169,8 @@ def callback_inline(call: telebot.types.CallbackQuery):
 
         if role == "seeker":
             new_seeker = Seeker()
-            new_seeker.tg_user_id = user_tg_id
+            print(type(user_tg_id))
+            new_seeker.tg_user_id = int(user_tg_id)
             temp_seekers[str(user_tg_id)] = new_seeker
 
             new_msg = bot.edit_message_text(
@@ -183,6 +189,9 @@ def callback_inline(call: telebot.types.CallbackQuery):
     elif call.data.startswith("makereply_"):
         job_id = int(call.data.split('_')[1])
         job = session.query(Job).filter(Job.id == job_id).first()
+        user = get_user_by_tg_id(session, call.from_user.id)
+        
+        add_job_reply(session,  job,  user)
 
     elif call.data == "add_job":
         new_msg = bot.edit_message_text(
@@ -194,29 +203,54 @@ def callback_inline(call: telebot.types.CallbackQuery):
 
         headhunter = get_user_by_tg_id(session, call.from_user.id)
         jobs = list(headhunter.jobs)
+        if len(jobs) == 0:
+            new_msg = bot.edit_message_text(
+                "У вас нет вакансий", call.from_user.id, call.message.id, reply_markup=menu.main_seeker_menu())
 
-        for job in jobs:
-            text += job.title + "\n"
+        else:
+            for job in jobs:
+                text += job.title + "\n"
 
-        new_msg = bot.edit_message_text(
-            text, call.from_user.id, call.message.id, reply_markup=menu.main_headhunter_menu())
+            new_msg = bot.edit_message_text(
+                text, call.from_user.id, call.message.id, reply_markup=menu.main_headhunter_menu())
 
     elif call.data == "main_menu_seeker":
         new_msg = bot.edit_message_text(
             "Выбери пункт меню:", call.from_user.id, call.message.id, reply_markup=menu.main_seeker_menu())
 
-    elif call.data == "seacrch_job":
-        job = get_relative_job()
+
+    elif "seacrch_job" in call.data:
+        seeker = get_user_by_tg_id(session, call.from_user.id)
+        skills = json.loads(seeker.skills)
+        job = get_relative_job(session, seeker.tg_user_id, skills)
+
         if job is None:
             new_msg = bot.edit_message_text(
                 "Нет подходящих вакансий( ", call.from_user.id, call.message.id, reply_markup=menu.main_seeker_menu())
         else:
             text = f"Как тебе вакансия? \n"
-            text += f"{job.title}\n"
-            text += f"{job.description[:250]}\n"
+            text += f"{job.title}\n\nОписание:\n"
+            text += f"{job.description[:250]}\nНавыки:\n"
+            text += " ,".join(json.loads(job.skills))
             new_msg = bot.edit_message_text(
                 text, call.from_user.id, call.message.id, reply_markup=menu.watch_job(job.id))
 
+
+    elif "seacrch_task" in call.data:
+        seeker = get_user_by_tg_id(session, call.from_user.id)
+        skills = json.loads(seeker.skills)
+        task = get_relative_task(session, seeker.tg_user_id, skills)
+
+        if task is None:
+                new_msg = bot.edit_message_text(
+                    "Нет подходящих вакансий( ", call.from_user.id, call.message.id, reply_markup=menu.main_seeker_menu())
+        else:
+            text = f"Как тебе задание? \n"
+            text += f"{job.title}\n\nОписание:\n"
+            text += f"{job.description[:250]}\nНавыки:\n"
+            text += " ,".join(json.loads(job.skills))
+            new_msg = bot.edit_message_text(
+                text, call.from_user.id, call.message.id, reply_markup=menu.watch_job(job.id))
 
 if __name__ == '__main__':
     # bot.enable_save_next_step_handlers(delay=2)

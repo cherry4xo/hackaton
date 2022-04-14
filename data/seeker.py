@@ -16,7 +16,10 @@ class Seeker(SqlAlchemyBase, SerializerMixin):
     full_name = sqlalchemy.Column(sqlalchemy.String)
     skills = sqlalchemy.Column(sqlalchemy.Text)
     age = sqlalchemy.Column(sqlalchemy.Integer)
-    
+
+    viewed_job_ids = sqlalchemy.Column(sqlalchemy.String, default='[]')
+    viewed_task_ids = sqlalchemy.Column(sqlalchemy.String, default='[]')
+
     replies_task = relationship("TaskReply")
     relpies_jobs = relationship("JobReply")
 
