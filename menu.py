@@ -12,7 +12,7 @@ def main_headhunter_menu():
         "Добавить вакансию", callback_data="add_job"))
     keyboard.add(InlineKeyboardButton(
         "Добавить задание", callback_data="add_task"))
-    keyboard.add(InlineKeyboardButton("Профиль", callback_data="profile"))
+    # keyboard.add(InlineKeyboardButton("Профиль", callback_data="profile"))
 
     return keyboard
 
@@ -21,13 +21,13 @@ def main_seeker_menu():
     keyboard = InlineKeyboardMarkup()
 
     keyboard.add(InlineKeyboardButton(
-        "Искать вакансии", callback_data="my_jobs"))
+        "Искать вакансии", callback_data="seacrch_job"))
     keyboard.add(InlineKeyboardButton(
-        "Искать задания", callback_data="my_tasks"))
+        "Искать задания", callback_data="seacrch_task"))
     keyboard.add(InlineKeyboardButton(
-        "Мои отклики", callback_data="add_job"))
-    keyboard.add(InlineKeyboardButton(
-        "Профиль", callback_data="profile"))
+        "Мои отклики", callback_data="my_callbacks"))
+    # keyboard.add(InlineKeyboardButton(
+    #     "Профиль", callback_data="profile"))
 
     return keyboard
 
