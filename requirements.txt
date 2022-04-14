@@ -1,0 +1,5 @@
+python-decouple
+PyTelegramBotApi
+SQLAlchemy[sqlite]
+autopep8
+SQLAlchemy-serializer
