@@ -28,6 +28,9 @@ def add_new_test_object() -> TestTable:
     new_test_object.title = "aboba" + str(randint(1, 10))
 
     session.add(new_test_object)
+    session.expunge_all()
     session.commit()
 
     return  new_test_object
+
+
