@@ -20,12 +20,13 @@ class HeadHunter(SqlAlchemyBase, SerializerMixin):
         return f'HeadHunter {self.name}'
 
 
-def add_headhunter(sess, name:str, field:str) -> HeadHunter:
+def add_headhunter(sess, tg_id, name:str, field:str) -> HeadHunter:
     session = create_session()
     session.expire_on_commit = True
 
     new_headhunter = HeadHunter()
     new_headhunter.field = field
+    new_headhunter.tg_user_id = tg_id
     new_headhunter.name = name
 
     sess.add(new_headhunter)
